@@ -30,11 +30,14 @@ int main() {
 #define MAX_BUFFER_SIZE 1024
 
 int numImage;
+int index;
 const char imagePathList[MAX_IMAGE_COUNT][MAX_BUFFER_SIZE];
 
 void Init();
 void Setup();
 int Update();
+
+int SetWallpaper(const char* filePath);
 
 int main(void)
 {
@@ -48,7 +51,7 @@ int main(void)
             break;
         }
 
-        Sleep(1000);
+        Sleep(10);
     }
 
 	return 0;
@@ -105,9 +108,9 @@ void Setup()
 
 int Update()
 {
-    int index = rand() % numImage;
+    for (; !(GetAsyncKeyState(VK_SPACE) & 0x8000); Sleep(10));
 
-    if (SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)imagePathList[index], SPIF_UPDATEINIFILE | SPIF_SENDCHANGE))
+    if (SetWallpaper(imagePathList[index]))
     {
         printf("배경 화면이 성공적으로 변경되었습니다: %s\n", imagePathList[index]);
     }
@@ -116,7 +119,24 @@ int Update()
         printf("배경 화면 변경에 실패했습니다. %s\n경로를 확인하세요.\n", imagePathList[index]);
     }
 
+    index++;
+
+    if (index >= numImage)
+    {
+        index = 0;
+    }
+
     if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+int SetWallpaper(const char* filePath)
+{
+    if (SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)filePath, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE))
     {
         return 1;
     }
