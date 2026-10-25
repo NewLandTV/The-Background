@@ -1,8 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <cstring>
 #include <ctime>
-#include <cstdlib>
 #include <Windows.h>
 #include <gdiplus.h>
 
@@ -14,7 +13,9 @@
 #define IMAGES_FILE_PATH "images.txt"
 #define MAX_IMAGE_COUNT 10
 #define MAX_BUFFER_SIZE 1024
+#define SLEEP_MILLISECONDS 5
 
+using namespace std;
 using namespace Gdiplus;
 
 ULONG_PTR token;
@@ -46,7 +47,7 @@ int main(void)
             break;
         }
 
-        Sleep(10);
+        Sleep(SLEEP_MILLISECONDS);
     }
 
 	return 0;
@@ -73,43 +74,54 @@ void Init()
     consoleCursorInfo.dwSize = 1;
 
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleCursorInfo);
+
+    // Setup Fast IO
+    ios::sync_with_stdio(false);
+
+    cin.tie(nullptr);
+    cout.tie(nullptr);
 }
 
 void Setup()
 {
-    FILE* fp;
+    ifstream imageFile(IMAGES_FILE_PATH);
 
-    fopen_s(&fp, IMAGES_FILE_PATH, "r");
-
-    if (fp == NULL)
+    if (!imageFile.is_open())
     {
-        printf("%s 파일을 열 수 없습니다.\n", IMAGES_FILE_PATH);
+        cout << IMAGES_FILE_PATH << "파일을 열 수 없습니다.\n";
 
         return;
     }
 
-    char buffer[MAX_BUFFER_SIZE];
+    string line;
 
-    for (numImage = 0; fgets(buffer, MAX_BUFFER_SIZE, fp) != NULL;)
+    for (numImage = 0; getline(imageFile, line); numImage++)
     {
-        buffer[strcspn(buffer, "\n")] = '\0';
-
         if (numImage >= MAX_IMAGE_COUNT)
         {
-            printf("이미지 파일의 개수가 %d가 넘습니다.\n(상단에 위치한 %d개의 이미지만 가져옵니다...)\n", MAX_IMAGE_COUNT, MAX_IMAGE_COUNT);
+            cout << "이미지 파일의 개수가 " << MAX_IMAGE_COUNT << "을(를) 넘습니다.\n(상단에 위치한 " << MAX_IMAGE_COUNT << "개의 이미지만 가져옵니다...)\n";
 
             break;
         }
 
-        strcpy_s(imagePathList[numImage++], buffer);
+        strcpy_s(imagePathList[numImage], line.c_str());
     }
 
-    printf("%d개의 이미지 파일을 불러왔습니다.\n", numImage);
+    cout << numImage << "개의 이미지 파일을 불러왔습니다.\n";
 }
 
 int Update()
 {
-    for (; !(GetAsyncKeyState(VK_SPACE) & 0x8000); Sleep(10));
+    // Wait before pressing the Space key or Esc.
+    while (!(GetAsyncKeyState(VK_SPACE) & 0x8000))
+    {
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+        {
+            return 1;
+        }
+
+        Sleep(SLEEP_MILLISECONDS);
+    }
 
     int len = strlen(imagePathList[index]);
 
@@ -135,12 +147,18 @@ int Update()
             {
                 DrawFrameToDesktop(gifImage, i);
 
+                if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+                {
+                    delete gifImage;
+
+                    return 1;
+                }
                 if (GetAsyncKeyState(VK_SPACE) & 0x8000)
                 {
                     break;
                 }
 
-                Sleep(10);
+                Sleep(SLEEP_MILLISECONDS);
             }
 
             if (GetAsyncKeyState(VK_SPACE) & 0x8000)
@@ -155,24 +173,17 @@ int Update()
     {
         if (SetWallpaper(imagePathList[index]))
         {
-            printf("배경 화면이 성공적으로 변경되었습니다: %s\n", imagePathList[index]);
+            cout << "배경 화면이 성공적으로 변경되었습니다: " << imagePathList[index]  << "\n";
         }
         else
         {
-            printf("배경 화면 변경에 실패했습니다. %s\n경로를 확인하세요.\n", imagePathList[index]);
+            cout << "배경 화면 변경에 실패했습니다. " << imagePathList[index] << "\n경로를 확인하세요.\n";
         }
     }
 
-    index++;
-
-    if (index >= numImage)
+    if (++index >= numImage)
     {
         index = 0;
-    }
-
-    if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
-    {
-        return 1;
     }
 
     return 0;
