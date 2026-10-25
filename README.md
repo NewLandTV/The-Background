@@ -3,10 +3,6 @@
 Make your own desktop.<br>
 여러분만의 데스크탑을 만드세요.
 
-# **Introduction(소개)**
-
-C++ Bitmap Image.
-
 [![Development Note p.688](https://img.youtube.com/vi/NNSZ5IT8bxA/0.jpg)](https://www.youtube.com/watch?v=NNSZ5IT8bxA)
 
 # Links(링크)
