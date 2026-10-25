@@ -1,24 +1,3 @@
-/* q="배경 화면 변경 프로그램 with C", (AI 개요)
-#include <windows.h>
-#include <stdio.h>
-
-int main() {
-    // 변경할 배경화면의 절대 경로 (파일 형식 주의: bmp, jpg 등)
-    const char* imagePath = "C:\\path\\to\\your\\image.jpg";
-
-    // SystemParametersInfoA 함수를 사용하여 배경화면 설정
-    // SPI_SETDESKWALLPAPER: 배경화면 설정 옵션
-    // SPIF_UPDATEINIFILE | SPIF_SENDCHANGE: 설정 반영 및 즉시 변경
-    if (SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, (void*)imagePath, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)) {
-        printf("배경 화면이 성공적으로 변경되었습니다: %s\n", imagePath);
-    } else {
-        printf("배경 화면 변경에 실패했습니다. 경로를 확인하세요.\n");
-    }
-
-    return 0;
-}
-*/
-
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -136,64 +115,6 @@ int Update()
 
     if (len >= 4 && imagePathList[index][len - 4] == '.' && imagePathList[index][len - 3] == 'g' && imagePathList[index][len - 2] == 'i' && imagePathList[index][strlen(imagePathList[index]) - 1] == 'f')
     {
-        /*
-        * q="C언어로 gif 배경화면 직접 구현", (AI 개요)
-        #include <windows.h>
-        #include <gdiplus.h>
-        #include <iostream>
-
-        // GDI+ 라이브러리 연결
-        #pragma comment (lib, "Gdiplus.lib")
-        #pragma comment (lib, "user32.lib")
-        #pragma comment (lib, "gdi32.lib")
-
-        using namespace Gdiplus;
-
-        // 바탕화면 DC에 그리기 위한 함수 (이 부분은 정밀한 윈도우 탐색이 필요함)
-        void DrawFrameToDesktop(Image* image, UINT frameIndex) {
-            // 1. Desktop DC 얻기
-            HWND hwndDesktop = GetDesktopWindow(); 
-            // 실제 구현시엔 Progman -> WorkerW 구조를 찾아야 함
-            HDC hdc = GetDC(NULL); 
-            Graphics graphics(hdc);
-
-            // 2. 프레임 선택
-            GUID pageGuid = FrameDimensionTime;
-            image->SelectActiveFrame(&pageGuid, frameIndex);
-
-            // 3. 배경화면에 그리기 (전체 화면 크기)
-            graphics.DrawImage(image, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
-
-            ReleaseDC(NULL, hdc);
-        }
-
-        int main() {
-            // GDI+ 초기화
-            ULONG_PTR token;
-            GdiplusStartupInput input;
-            GdiplusStartup(&token, &input, NULL);
-
-            // GIF 파일 로드
-            Image* gifImage = new Image(L"background.gif");
-    
-            // 프레임 정보 가져오기
-            GUID pageGuid = FrameDimensionTime;
-            UINT frameCount = gifImage->GetFrameCount(&pageGuid);
-
-            // 애니메이션 루프
-            while (true) {
-                for (UINT i = 0; i < frameCount; ++i) {
-                    DrawFrameToDesktop(gifImage, i);
-                    Sleep(50); // 프레임 지연 시간 (실제 GIF 속도에 맞춰 조절 필요)
-                }
-            }
-
-            delete gifImage;
-            GdiplusShutdown(token);
-            return 0;
-        }
-        */
-
         // Convert path to wide string
         wchar_t path[MAX_BUFFER_SIZE];
         size_t convertedChars = 0;
